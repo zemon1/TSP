@@ -24,17 +24,48 @@ def randomizePop(thePop):
            
      return thePop 
 
+def fitness(thePop, cityInfo):
+     chromoSize = len(thePop[0][1])
+     cities = cityInfo[0]
+     distances = cityInfo[1]
+     cityOrder = []
+
+     for citizen in thePop:
+          cityOrder = [0] * chromoSize
+          chromo = citizen[1]
+          thisDist = [-1.0] * (chromoSize - 1)
+          
+          for i in range(chromoSize):
+               cityOrder[i] = chromo.index(i)
+          
+          for i in range(len(cityOrder)):
+               if not i == len(cityOrder) - 1:
+                    thisCity = cityOrder[i]
+                    nextCity = cityOrder[i+1]
+
+                    thisDist[i] = distances[thisCity][nextCity]
 
 
+          citizen[2] = sum(thisDist)
+     
+     return thePop
 
 def createDataStructs(theCities):
      cityOrder = {}
+     sdistances = []
      distances = []
      count = 0
 
      for city in theCities:
           cityOrder[city[0]] = count
-          distances.append(city[1:])           
+          distances.append(city[1:])
+          
+          for i in range(len(distances)):
+               newCity = []
+               for j in range(len(distances[i])):
+                    newCity.append(float(distances[i][j]))
+               distances[i] = newCity  
+                               
           count += 1
 
      return (cityOrder, distances)
@@ -57,6 +88,10 @@ if __name__ == "__main__":
      pop = initializePop(10, 7)
      pop = randomizePop(pop)
      
+     
+      
+     pop = fitness(pop, structs)
+
      for ele in pop:
          print ele
 
