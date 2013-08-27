@@ -1,12 +1,19 @@
 #Jeff Haak
 #Traveling Salesman Problem
-import copy, random
+import copy, random, numpy
+from operator import itemgetter
+
+global popId 
+
 
 def initializePop(popSize, chromoSize):
      pop = []
+
+     popId = 0
      count = 0
      while count < popSize:
-          pop.append([count, [0] * chromoSize, 9999999])
+          pop.append([popId, [0] * chromoSize, 9999999])
+          popId += 1
           count += 1
 
      return pop
@@ -48,7 +55,53 @@ def fitness(thePop, cityInfo):
 
           citizen[2] = sum(thisDist)
      
+     thePop = sorted(thePop, key=itemgetter(2))
+     
      return thePop
+
+def mate(thePop):
+     result = [-1] * int(round(len(thePop) * .25)) 
+     elites = [-1] * int(round(len(thePop) * .25)) 
+     candidates = [-1] * int(round(len(thePop) * .555555))
+
+     count = 0
+     while count < len(elites):
+         elites[count] = thePop[count]
+         result[count] = elites[count]
+         count += 1 
+
+     count = 0
+     while count < len(candidates):
+         candidates[count] = thePop[count]
+         print candidates[count]
+         count += 1
+     
+     print "\n"
+
+     empty = int(round(len(thePop) * .25)) 
+     for i in range(len(candidates)):
+          for j in range(len(candidates)):
+               if i < j:
+                    if empty < len(thePop):
+                         result.extend(crossOver(candidates[i], candidates[j]))
+
+                         print candidates[i]
+                         print candidates[j]               
+                         print "---------" 
+                         empty += 2
+                              
+
+     print "\n"
+     while len(result) > len(thePop):
+          result.pop()
+     
+     return result
+
+def crossOver(par1, par2):
+     child1 = [-1, -1, -1]
+     child2 = [-1, -1, -1]
+
+     return [child1, child2]
 
 def createDataStructs(theCities):
      cityOrder = {}
@@ -88,9 +141,9 @@ if __name__ == "__main__":
      pop = initializePop(10, 7)
      pop = randomizePop(pop)
      
-     
-      
      pop = fitness(pop, structs)
+
+     pop = mate(pop)
 
      for ele in pop:
          print ele
