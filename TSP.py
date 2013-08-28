@@ -27,10 +27,12 @@ def randomizePop(thePop):
      choiceMax = len(thePop[0][1])
      choices = []
 
-     
+     #Populates the list of options from 0 to the max choice     
      for i in range(0, choiceMax):
          choices.append(i)
-
+     
+     #This loop copies the options and shuffles them up and uses that as the 
+     #    chromosome
      for citizen in thePop:
           availible = copy.deepcopy(choices)
           random.shuffle(availible)
@@ -38,72 +40,88 @@ def randomizePop(thePop):
            
      return thePop 
 
+#This function ranks the citezens from best to worst by how long their path is
 def fitness(thePop, cityInfo):
      chromoSize = len(thePop[0][1])
      cities = cityInfo[0]
      distances = cityInfo[1]
      cityOrder = []
-
+     
+     #figures out the order of the destinations and the total distance traveled
      for citizen in thePop:
+          #create an empty array for the order of the cities to visit
           cityOrder = [0] * chromoSize
+          
+          #create a shortcut to the useful info
           chromo = citizen[1]
+
+          #array containing all of the distances to the cities in the order 
+          #    specified by the chromosome
           thisDist = [-1.0] * (chromoSize - 1)
           
-          #print "Chromo: ", chromo
-
+          #determine what the order of cities is by finding out where they 
+          #    are in the array
           for i in range(chromoSize):
                cityOrder[i] = chromo.index(i)
-                
+          
+          #go through the list created above and find look up the distance 
+          #    between each specified city
           for i in range(len(cityOrder)):
                if not i == len(cityOrder) - 1:
                     thisCity = cityOrder[i]
                     nextCity = cityOrder[i+1]
 
                     thisDist[i] = distances[thisCity][nextCity]
-
+          #Sum the distance array to get the total distance traveled
           citizen[2] = sum(thisDist)
      
+     #Sort the population by the total distance traveled
      thePop = sorted(thePop, key=itemgetter(2))
      
      return thePop
 
+#this funtion identitifies potential mates and then mates them
 def mate(thePop):
      global popId
-     result = [-1] * int(round(len(thePop) * .25)) 
+     
+     #create a result array and fill it with -1
+     result = [-1] * int(round(len(thePop) * .25))
+     
+     #create an array of the top quarter of the population 
      elites = [-1] * int(round(len(thePop) * .25)) 
-     candidates = [-1] * int(round(len(thePop) * .555555))
 
+     #create an array for the top 55% and this becomes our mating pool
+     candidates = [-1] * int(round(len(thePop) * .555555))
+     
+     #Put the elites in their array and into the result array
      count = 0
      while count < len(elites):
          elites[count] = thePop[count]
          result[count] = elites[count]
          count += 1 
-
+     
+     #Fill up the candidates array    
      count = 0
      while count < len(candidates):
          candidates[count] = thePop[count]
-         #print candidates[count]
          count += 1
      
-     #print "\n"
-
+     #Mate the best citizen with all other citizens.  If the result does 
+     #    not have enough people in it mate the second best with everyone 
+     #    except the best ect.
      empty = int(round(len(thePop) * .25)) 
      for i in range(len(candidates)):
           for j in range(len(candidates)):
                if i < j:
                     if empty < len(thePop):
                         result.extend(crossOver(candidates[i], candidates[j]))
-
-                        #print candidates[i]
-                        #print candidates[j]               
-                        #print "---------" 
                     empty += 2
                               
-
-     #print "\n"
+     #If the result has too many citizens, kill one off and reduce the popId
      while len(result) > len(thePop):
           result.pop()
           popId -= 1 
+
      return result
 
 def crossOver(par1, par2):
@@ -163,7 +181,6 @@ def createDataStructs(theCities):
      count = 0
 
      for city in theCities:
-          #cityOrder[city[0]] = count
           cityOrder[count] = city[0]
           distances.append(city[1:])
           
@@ -252,18 +269,7 @@ def printSolution(best, cities):
      print final
      print "\n" 
 
-      
-
 if __name__ == "__main__":
      random.seed(1)
      
-     runGA(-1)     
-
-
-
-
-
-
-
-
-
+     runGA(-1)
